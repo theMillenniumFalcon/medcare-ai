@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Settings } from "lucide-react"
 import { ThemeToggle } from "@/components/theme/toggle"
-import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer"
+import { Drawer, DrawerContent, DrawerHeader, DrawerTrigger } from "@/components/ui/drawer"
 import { Button } from "@/components/ui/button"
 import Report from "@/components/report"
 import Chat from "@/components/chat"
