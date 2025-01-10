@@ -5,17 +5,17 @@ import { TooltipProvider } from "@/components/ui/tooltip"
 import { ThemeProvider } from "@/providers/theme-provider"
 import { Toaster } from "@/components/ui/toaster"
 
-const source_code_pro = Source_Code_Pro({ subsets: ["latin"] });
+const source_code_pro = Source_Code_Pro({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "Medcare-AI",
   description: "",
-};
+}
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: React.ReactNode
 }>) {
   return (
     <html lang="en">
@@ -31,5 +31,5 @@ export default function RootLayout({
         </ThemeProvider>
       </body>
     </html>
-  );
+  )
 }
