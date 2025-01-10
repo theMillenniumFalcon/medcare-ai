@@ -59,7 +59,7 @@ export default function Chat({ reportData }: ChatProps) {
                     size="sm"
                     className="ml-auto"
                 >
-                    {isLoading ? "Analysing..." : "3. Ask"}
+                    {isLoading ? "Analyzing..." : "3. Ask"}
                     {isLoading ? (
                         <Loader2 className="size-3.5 animate-spin" />
                     ) : (
