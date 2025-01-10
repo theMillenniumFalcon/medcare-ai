@@ -108,7 +108,33 @@ export default function Report({ onReportConfirmation }: ReportProps) {
         }
     }
 
-    const extractDetails = () => {}
+    const extractDetails = async () => {
+        if (!base64Data) {
+            toast({
+                variant: 'destructive',
+                description: "Upload a valid report!",
+            })
+            return
+        }
+        setIsLoading(true)
+
+        const response = await fetch("/api/extract-report", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                base64: base64Data,
+            }),
+        })
+
+        if (response.ok) {
+            const reportText = await response.text()
+            setReportData(reportText)
+        }
+
+        setIsLoading(false)
+    }
 
     return (
         <div className="grid w-full items-start gap-6 overflow-auto p-4 pt-0">
