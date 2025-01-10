@@ -13,7 +13,7 @@ type ChatProps = {
 
 export default function Chat({ reportData }: ChatProps) {
     const { messages, input, handleInputChange, handleSubmit, isLoading, data } = useChat({
-        api: "api/medichatgemini",
+        api: "/api/chat",
     })
 
     return (

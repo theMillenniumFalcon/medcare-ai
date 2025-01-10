@@ -79,7 +79,6 @@ export default function Report({ onReportConfirmation }: ReportProps) {
                     reader.onloadend = () => {
                         const base64String = reader.result as string
                         setBase64Data(base64String)
-                        console.log(base64String)
                     }
 
                     reader.readAsDataURL(compressedFile)
@@ -100,7 +99,6 @@ export default function Report({ onReportConfirmation }: ReportProps) {
                 reader.onloadend = () => {
                     const base64String = reader.result as string
                     setBase64Data(base64String)
-                    console.log(base64String)
                 }
 
                 reader.readAsDataURL(file)
@@ -108,7 +106,7 @@ export default function Report({ onReportConfirmation }: ReportProps) {
         }
     }
 
-    const extractDetails = async () => {
+    const extractDetails = async (): Promise<void> => {
         if (!base64Data) {
             toast({
                 variant: 'destructive',
