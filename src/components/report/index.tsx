@@ -8,7 +8,7 @@ import { Textarea } from "../ui/textarea"
 import { useToast } from "@/hooks/use-toast"
 
 type ReportProps = {
-    onReportConfirmation: (data: string) => void
+    onReportConfirmation?: (data: string) => void
 }
 
 export default function Report({ onReportConfirmation }: ReportProps) {
@@ -155,7 +155,7 @@ export default function Report({ onReportConfirmation }: ReportProps) {
                     <Button
                         variant="destructive"
                         className="bg-[#D90013]"
-                        onClick={() => onReportConfirmation(reportData)}
+                        onClick={() => onReportConfirmation!(reportData)}
                     >
                         2. Looks Good
                     </Button>
