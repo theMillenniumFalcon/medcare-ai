@@ -20,7 +20,7 @@ const model = google('models/gemini-1.5-pro-latest', {
     ],
 })
 
-export async function POST(req: Request) {
+export async function POST(req: Request, res: Response) {
     const reqBody = await req.json()
 
     const messages: Message[] = reqBody.messages

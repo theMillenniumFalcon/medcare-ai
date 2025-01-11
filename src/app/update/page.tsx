@@ -1,16 +1,18 @@
 "use client"
 
 import React, { useState } from "react"
+import { LucideLoader2, RefreshCcw } from "lucide-react"
 import Navbar from "@/components/navbar"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { LucideLoader2, RefreshCcw } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Progress } from "@/components/ui/progress"
+import { useToast } from "@/hooks/use-toast"
 
 export default function Update() {
+    const { toast } = useToast()
     const [isUploading, setisUploading] = useState(false)
     const [indexname, setIndexname] = useState("")
     const [namespace, setNamespace] = useState("")
@@ -20,7 +22,48 @@ export default function Update() {
 
     const onFileListRefresh = async () => {}
 
-    const onStartUpload = async () => {}
+    const onStartUpload = async () => {
+        setProgress(0)
+        setFilename("")
+        setisUploading(true)
+        const response = await fetch("/api/update-database", {
+            method: 'POST', body: JSON.stringify({ indexname, namespace })
+        })
+        await processStreamedProgress(response)
+    }
+
+    const processStreamedProgress = async (response: Response) => {
+        const reader = response.body?.getReader()
+        if (!reader) {
+            toast({
+                variant: "destructive",
+                description: "error updating database",
+            })
+            return
+        }
+        try {
+            while (true) {
+                const { done, value } = await reader.read()
+                if (done) {
+                    setisUploading(false)
+                    break
+                }
+
+                const data = new TextDecoder().decode(value)
+                const { filename, totalChunks, chunksUpserted, isComplete } = JSON.parse(data)
+                const currentProgress = (chunksUpserted / totalChunks) * 100
+                setProgress(currentProgress)
+                setFilename(`${filename} [${chunksUpserted}/${totalChunks}]`)
+            }
+        } catch (error) {
+            toast({
+                variant: 'destructive',
+                description: `${error}`,
+            })
+        } finally {
+            reader.releaseLock()
+        }
+    }
 
     return (
         <div className="h-screen w-full">
