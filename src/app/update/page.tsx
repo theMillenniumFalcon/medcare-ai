@@ -13,7 +13,7 @@ import { useToast } from "@/hooks/use-toast"
 
 export default function Update() {
     const { toast } = useToast()
-    const [isAuthorized, setIsAuthorized] = useState(false)
+    const [isAuthorized, setIsAuthorized] = useState(true)
     const [password, setPassword] = useState("")
     const [error, setError] = useState("")
     const [isUploading, setisUploading] = useState(false)
