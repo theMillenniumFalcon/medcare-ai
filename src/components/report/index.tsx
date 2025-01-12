@@ -116,7 +116,7 @@ export default function Report({ onReportConfirmation }: ReportProps) {
         }
         setIsLoading(true)
 
-        const response = await fetch("/api/extract-report", {
+        const response = await fetch("/api/extractReport", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

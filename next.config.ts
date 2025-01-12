@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: 'export',
+  output: 'standalone',
   serverExternalPackages: ['sharp', 'onnxruntime-node'],
   webpack: (config) => {
     config.resolve.alias = {

@@ -33,13 +33,19 @@ export default function Update() {
         }
     }
 
-    const onFileListRefresh = async () => {}
+    const onFileListRefresh = async () => {
+        setfileListAsText("")
+        const response = await fetch("/api/getFileList", { method: 'GET' })
+        const filenames = await response.json()
+        const resultString = (filenames as []).map(filename => `📄 ${filename}`).join('\n')
+        setfileListAsText(resultString)
+    }
 
     const onStartUpload = async () => {
         setProgress(0)
         setFilename("")
         setisUploading(true)
-        const response = await fetch("/api/update-database", {
+        const response = await fetch("/api/updateDatabase", {
             method: 'POST', body: JSON.stringify({ indexname, namespace })
         })
         await processStreamedProgress(response)
