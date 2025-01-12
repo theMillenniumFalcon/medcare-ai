@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { LucideLoader2, RefreshCcw } from "lucide-react"
 import Navbar from "@/components/navbar"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
@@ -13,9 +13,9 @@ import { useToast } from "@/hooks/use-toast"
 
 export default function Update() {
     const { toast } = useToast()
-    const [isAuthorized, setIsAuthorized] = useState(true)
+    const [isLoading, setIsLoading] = useState(true)
+    const [isAuthorized, setIsAuthorized] = useState(false)
     const [password, setPassword] = useState("")
-    const [error, setError] = useState("")
     const [isUploading, setisUploading] = useState(false)
     const [indexname, setIndexname] = useState("")
     const [namespace, setNamespace] = useState("")
@@ -23,14 +23,56 @@ export default function Update() {
     const [filename, setFilename] = useState("")
     const [progress, setProgress] = useState(0)
 
+    const AUTH_KEY = "medcare"
+
+    useEffect(() => {
+        const checkAuth = () => {
+            const storedAuth = localStorage.getItem(AUTH_KEY)
+            if (storedAuth) {
+                try {
+                    const { isAuth, timestamp } = JSON.parse(storedAuth)
+                    const now = new Date().getTime()
+                    if (isAuth && now - timestamp < 24 * 60 * 60 * 1000) {
+                        setIsAuthorized(true)
+                    } else {
+                        localStorage.removeItem(AUTH_KEY)
+                    }
+                } catch (e) {
+                    localStorage.removeItem(AUTH_KEY)
+                }
+            }
+            setIsLoading(false)
+        }
+    
+        if (typeof window !== 'undefined') {
+            checkAuth()
+        } else {
+            setIsLoading(false)
+        }
+    }, [])
+
     const handleSubmit = (e: React.MouseEvent<HTMLElement>) => {
         e.preventDefault()
+        // console.log('pass is:',process.env.NEXT_PUBLIC_ADMIN_PASSWORD)
         if (password === process.env.ADMIN_PASSWORD) {
             setIsAuthorized(true)
-            setError("")
+            const authData = {
+                isAuth: true,
+                timestamp: new Date().getTime()
+            }
+            localStorage.setItem(AUTH_KEY, JSON.stringify(authData))
         } else {
-            setError("Incorrect password")
+            toast({
+                variant: "destructive",
+                description: "Incorrect password",
+            })
         }
+    }
+
+    const handleLogout = () => {
+        setIsAuthorized(false)
+        setPassword("")
+        localStorage.removeItem(AUTH_KEY)
     }
 
     const onFileListRefresh = async () => {
@@ -84,6 +126,17 @@ export default function Update() {
         }
     }
 
+    if (isLoading) {
+        return (
+            <div className="h-screen w-full">
+                <Navbar />
+                <main className="flex flex-col items-center p-24">
+                    <div className="text-xl text-gray-600">Loading...</div>
+                </main>
+            </div>
+        )
+    }
+
     if (!isAuthorized) {
         return (
             <div className="h-screen w-full">
@@ -100,9 +153,6 @@ export default function Update() {
                                 <Label>Password</Label>
                                 <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="password" className="disabled:cursor-default" />
                             </div>
-                            {error && (
-                                <p className="text-red-500 text-sm text-center">{error}</p>
-                            )}
                         </div>
                         <Button
                             onClick={handleSubmit}
@@ -172,6 +222,13 @@ export default function Update() {
                                 </div>
                             </div>
                         )}
+                        <Button
+                            onClick={handleLogout}
+                            variant="secondary"
+                            className="w-full h-full mt-4"
+                        >
+                            Logout
+                        </Button>
                     </CardContent>
                 </Card>
             </main>
