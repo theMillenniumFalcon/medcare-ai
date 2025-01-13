@@ -14,7 +14,7 @@ import { useToast } from "@/hooks/use-toast"
 export default function Update() {
     const { toast } = useToast()
     const [isLoading, setIsLoading] = useState(true)
-    const [isAuthorized, setIsAuthorized] = useState(false)
+    const [isAuthorized, setIsAuthorized] = useState(true)
     const [password, setPassword] = useState("")
     const [isUploading, setisUploading] = useState(false)
     const [indexname, setIndexname] = useState("")
@@ -111,7 +111,7 @@ export default function Update() {
                 }
 
                 const data = new TextDecoder().decode(value)
-                const { filename, totalChunks, chunksUpserted, isComplete } = JSON.parse(data)
+                const { filename, totalChunks, chunksUpserted, isComplete } = parseDataString(data)
                 const currentProgress = (chunksUpserted / totalChunks) * 100
                 setProgress(currentProgress)
                 setFilename(`${filename} [${chunksUpserted}/${totalChunks}]`)
@@ -121,8 +121,27 @@ export default function Update() {
                 variant: 'destructive',
                 description: `${error}`,
             })
+            console.log("error is:", error)
         } finally {
             reader.releaseLock()
+        }
+    }
+    
+    const parseDataString = (dataString: string) => {
+        const jsonStr = dataString.replace(/^data:\s*/, '')
+        
+        try {
+            const parsedData = JSON.parse(jsonStr)
+            const { filename, totalChunks, chunksUpserted, isComplete } = parsedData
+            
+            return {
+                filename,
+                totalChunks,
+                chunksUpserted,
+                isComplete
+            }
+        } catch (error: any) {
+            throw new Error('Failed to parse data string: ' + error.message)
         }
     }
 
