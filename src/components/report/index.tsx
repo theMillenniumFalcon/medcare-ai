@@ -159,6 +159,13 @@ export default function Report({ onReportConfirmation }: ReportProps) {
                     >
                         2. Looks Good
                     </Button>
+                    <div className="flex flex-row items-center justify-center gap-2 p-4 text-sm">
+                        <p>Built by{" "}
+                            <span className="text-[#D90013] underline underline-offset-4">
+                                <a href="https://github.com/themillenniumfalcon" target="_blank">Nishank</a>
+                            </span>.
+                        </p>
+                    </div>
             </fieldset>
         </div>
     )

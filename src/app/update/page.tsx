@@ -14,7 +14,7 @@ import { useToast } from "@/hooks/use-toast"
 export default function Update() {
     const { toast } = useToast()
     const [isLoading, setIsLoading] = useState(true)
-    const [isAuthorized, setIsAuthorized] = useState(true)
+    const [isAuthorized, setIsAuthorized] = useState(false)
     const [password, setPassword] = useState("")
     const [isUploading, setisUploading] = useState(false)
     const [indexname, setIndexname] = useState("")
@@ -23,7 +23,7 @@ export default function Update() {
     const [filename, setFilename] = useState("")
     const [progress, setProgress] = useState(0)
 
-    const AUTH_KEY = "medcare"
+    const AUTH_KEY = "medcare-ai"
 
     useEffect(() => {
         const checkAuth = () => {
@@ -53,8 +53,7 @@ export default function Update() {
 
     const handleSubmit = (e: React.MouseEvent<HTMLElement>) => {
         e.preventDefault()
-        // console.log('pass is:',process.env.NEXT_PUBLIC_ADMIN_PASSWORD)
-        if (password === process.env.ADMIN_PASSWORD) {
+        if (password === process.env.NEXT_PUBLIC_ADMIN_PASSWORD?.toLowerCase()) {
             setIsAuthorized(true)
             const authData = {
                 isAuth: true,
@@ -121,7 +120,6 @@ export default function Update() {
                 variant: 'destructive',
                 description: `${error}`,
             })
-            console.log("error is:", error)
         } finally {
             reader.releaseLock()
         }
