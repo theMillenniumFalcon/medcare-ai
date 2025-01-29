@@ -1,3 +1,4 @@
+import { NextRequest, NextResponse } from "next/server"
 import { queryVectorStore } from "@/lib/query-vector-store"
 import { Pinecone } from "@pinecone-database/pinecone"
 import { createGoogleGenerativeAI } from "@ai-sdk/google"
@@ -23,7 +24,7 @@ const model = google("models/gemini-1.5-pro-latest", {
     ],
 })
 
-export async function POST(req: Request, res: Response) {
+export async function POST(req: NextRequest): Promise<NextResponse> {
     const reqBody = await req.json()
 
     const messages: Message[] = reqBody.messages
@@ -67,5 +68,10 @@ export async function POST(req: Request, res: Response) {
         }
     })
 
-    return result.toDataStreamResponse({ data })
+    const response = result.toDataStreamResponse({ data })
+
+    return new NextResponse(response.body, {
+        status: response.status,
+        headers: response.headers,
+    })
 }
