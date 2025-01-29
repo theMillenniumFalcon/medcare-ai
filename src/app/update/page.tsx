@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
 import { Progress } from "@/components/ui/progress"
 import { useToast } from "@/hooks/use-toast"
+import { AUTH_DURATION, AUTH_KEY } from "@/constants"
 
 export default function Update() {
     const { toast } = useToast()
@@ -23,8 +24,6 @@ export default function Update() {
     const [filename, setFilename] = useState("")
     const [progress, setProgress] = useState(0)
 
-    const AUTH_KEY = "medcare-ai"
-
     useEffect(() => {
         const checkAuth = () => {
             const storedAuth = localStorage.getItem(AUTH_KEY)
@@ -32,7 +31,7 @@ export default function Update() {
                 try {
                     const { isAuth, timestamp } = JSON.parse(storedAuth)
                     const now = new Date().getTime()
-                    if (isAuth && now - timestamp < 24 * 60 * 60 * 1000) {
+                    if (isAuth && now - timestamp < AUTH_DURATION) {
                         setIsAuthorized(true)
                     } else {
                         localStorage.removeItem(AUTH_KEY)
@@ -44,41 +43,61 @@ export default function Update() {
             setIsLoading(false)
         }
     
-        if (typeof window !== 'undefined') {
+        if (typeof window !== "undefined") {
             checkAuth()
         } else {
             setIsLoading(false)
         }
     }, [])
 
-    const handleSubmit = (e: React.MouseEvent<HTMLElement>) => {
+    const handleSubmit = async (e: React.MouseEvent<HTMLElement>) => {
         e.preventDefault()
-        if (password === process.env.NEXT_PUBLIC_ADMIN_PASSWORD?.toLowerCase()) {
-            setIsAuthorized(true)
-            const authData = {
-                isAuth: true,
-                timestamp: new Date().getTime()
+        
+        try {
+            const response = await fetch("/api/auth", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ password }),
+            })
+            
+            const data = await response.json()
+            
+            if (data.success) {
+                setIsAuthorized(true)
+                const authData = {
+                    isAuth: true,
+                    timestamp: new Date().getTime()
+                }
+                localStorage.setItem(AUTH_KEY, JSON.stringify(authData))
+            } else {
+                toast({
+                    variant: "destructive",
+                    description: "Incorrect password",
+                })
             }
-            localStorage.setItem(AUTH_KEY, JSON.stringify(authData))
-        } else {
+        } catch (error) {
             toast({
                 variant: "destructive",
-                description: "Incorrect password",
+                description: "Authentication failed",
             })
         }
     }
 
-    const handleLogout = () => {
-        setIsAuthorized(false)
-        setPassword("")
+    const handleLogout = async () => {
         localStorage.removeItem(AUTH_KEY)
+        setIsAuthorized(false)
+        toast({
+            description: "Successfully logged out",
+        })
     }
 
     const onFileListRefresh = async () => {
         setfileListAsText("")
-        const response = await fetch("/api/getFileList", { method: 'GET' })
+        const response = await fetch("/api/getFileList", { method: "GET" })
         const filenames = await response.json()
-        const resultString = (filenames as []).map(filename => `📄 ${filename}`).join('\n')
+        const resultString = (filenames as []).map(filename => `📄 ${filename}`).join("\n")
         setfileListAsText(resultString)
     }
 
@@ -87,7 +106,8 @@ export default function Update() {
         setFilename("")
         setisUploading(true)
         const response = await fetch("/api/updateDatabase", {
-            method: 'POST', body: JSON.stringify({ indexname, namespace })
+            method: "POST",
+            body: JSON.stringify({ indexname, namespace })
         })
         await processStreamedProgress(response)
     }
@@ -117,7 +137,7 @@ export default function Update() {
             }
         } catch (error) {
             toast({
-                variant: 'destructive',
+                variant: "destructive",
                 description: `${error}`,
             })
         } finally {
@@ -126,7 +146,7 @@ export default function Update() {
     }
     
     const parseDataString = (dataString: string) => {
-        const jsonStr = dataString.replace(/^data:\s*/, '')
+        const jsonStr = dataString.replace(/^data:\s*/, "")
         
         try {
             const parsedData = JSON.parse(jsonStr)
@@ -139,7 +159,7 @@ export default function Update() {
                 isComplete
             }
         } catch (error: any) {
-            throw new Error('Failed to parse data string: ' + error.message)
+            throw new Error("Failed to parse data string: " + error.message)
         }
     }
 
